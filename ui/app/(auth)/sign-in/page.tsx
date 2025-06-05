@@ -3,6 +3,7 @@ import {
   getAuthUrl,
   isGithubOAuthEnabled,
   isGoogleOAuthEnabled,
+  isSignupDisabled,
 } from "@/lib/helper";
 
 const SignIn = () => {
@@ -15,6 +16,7 @@ const SignIn = () => {
       githubAuthUrl={GITHUB_AUTH_URL}
       isGoogleOAuthEnabled={isGoogleOAuthEnabled}
       isGithubOAuthEnabled={isGithubOAuthEnabled}
+      isSignupDisabled={isSignupDisabled()}
     />
   );
 };

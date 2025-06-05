@@ -6,6 +6,7 @@ from config.settings.celery import *  # noqa
 from config.settings.partitions import *  # noqa
 from config.settings.sentry import *  # noqa
 from config.settings.social_login import *  # noqa
+from config.django.registration import *  # noqa
 
 SECRET_KEY = env("SECRET_KEY", default="secret")
 DEBUG = env.bool("DJANGO_DEBUG", default=False)

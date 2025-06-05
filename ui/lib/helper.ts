@@ -7,6 +7,11 @@ import { AuthSocialProvider, MetaDataProps, PermissionInfo } from "@/types";
 export const baseUrl = process.env.AUTH_URL || "http://localhost:3000";
 export const apiBaseUrl = process.env.API_BASE_URL;
 
+// Helper function to check if signup is disabled
+export const isSignupDisabled = (): boolean => {
+  return process.env.DISABLE_SIGNUP === "true";
+};
+
 export const getAuthHeaders = async (options?: { contentType?: boolean }) => {
   const session = await auth();
 

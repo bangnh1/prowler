@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { getToken, getUserByMe } from "./actions/auth";
 import { apiBaseUrl } from "./lib";
+import { isSignupDisabled } from "./lib/helper";
 
 interface CustomJwtPayload extends JwtPayload {
   user_id: string;
@@ -141,9 +142,16 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/");
       const isSignUpPage = nextUrl.pathname === "/sign-up";
+      const disableSignUp = isSignupDisabled();
 
-      // Allow access to sign-up page
-      if (isSignUpPage) return true;
+      // Handle sign-up page access
+      if (isSignUpPage) {
+        // Redirect to sign-in if sign-up is disabled
+        if (disableSignUp) {
+          return Response.redirect(new URL("/sign-in", nextUrl));
+        }
+        return true; // Allow access to sign-up if not disabled
+      }
 
       if (isOnDashboard) {
         if (isLoggedIn) return true;

@@ -59,6 +59,8 @@ secrets:
   DJANGO_ACCESS_TOKEN_LIFETIME: "30"
   # Token lifetime is in minutes
   DJANGO_REFRESH_TOKEN_LIFETIME: "1440"
+  # Disable self-registration of new users (True/False)
+  DISABLE_SIGNUP: False
   DJANGO_CACHE_MAX_AGE: "3600"
   DJANGO_STALE_WHILE_REVALIDATE: "60"
   DJANGO_MANAGE_DB_PARTITIONS: "False"

@@ -91,6 +91,62 @@ class TestUserViewSet:
             response.json()["data"]["attributes"]["email"]
             == valid_user_payload["email"].lower()
         )
+        
+    @patch("api.v1.views.django_settings.DISABLE_SIGNUP", True)
+    def test_users_create_when_signup_disabled(self, client):
+        """Test that user creation fails when DISABLE_SIGNUP is True and no invitation token is provided"""
+        valid_user_payload = {
+            "name": "test",
+            "password": "newpassword123",
+            "email": "another@example.com",
+        }
+        response = client.post(
+            reverse("user-list"), data=valid_user_payload, format="json"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "User registration is disabled" in str(response.content)
+        assert not User.objects.filter(email__iexact=valid_user_payload["email"]).exists()
+        
+    @patch("api.v1.views.django_settings.DISABLE_SIGNUP", True)
+    @patch("api.v1.views.validate_invitation")
+    def test_users_create_when_signup_disabled_with_invitation(self, mock_validate_invitation, client, monkeypatch):
+        """Test that user creation succeeds when DISABLE_SIGNUP is True but a valid invitation token is provided"""
+        # Mock the invitation validation to return a valid invitation object
+        mock_invitation = Mock()
+        mock_invitation.tenant = Mock()
+        mock_invitation.roles.all.return_value = []
+        mock_invitation.state = Invitation.State.SENT
+        mock_validate_invitation.return_value = mock_invitation
+        
+        # Mock User.objects.db_manager to avoid database operations
+        mock_manager = Mock()
+        mock_user = Mock()
+        mock_manager.create_user.return_value = mock_user
+        monkeypatch.setattr("api.models.User.objects.db_manager", lambda x: mock_manager)
+        
+        # Mock Membership.objects.using
+        mock_membership_manager = Mock()
+        monkeypatch.setattr("api.models.Membership.objects.using", lambda x: mock_membership_manager)
+        
+        valid_user_payload = {
+            "name": "test",
+            "password": "newpassword123",
+            "email": "invited@example.com",
+        }
+        
+        # Send request with invitation token
+        response = client.post(
+            reverse("user-list") + "?invitation_token=valid_token", 
+            data=valid_user_payload, 
+            format="json"
+        )
+        
+        # Verify validation was called with the right parameters
+        mock_validate_invitation.assert_called_once_with("valid_token", valid_user_payload["email"])
+        
+        # Assert that with a valid invitation token, the registration succeeds even when ALLOW_SIGNUP is False
+        assert mock_manager.create_user.called
+        assert mock_membership_manager.create.called
 
     def test_users_create_duplicated_email(self, client):
         # Create a user

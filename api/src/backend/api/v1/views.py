@@ -475,6 +475,12 @@ class UserViewSet(BaseUserViewset):
         invitation_token = request.query_params.get("invitation_token", None)
         invitation = None
 
+        # Check if sign-ups are disabled and no invitation token is provided
+        if django_settings.DISABLE_SIGNUP and not invitation_token:
+            raise ValidationError(
+                "User registration is disabled. Please contact your administrator for an invitation."
+            )
+
         serializer = self.get_serializer(
             data=request.data, context=self.get_serializer_context()
         )

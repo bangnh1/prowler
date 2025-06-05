@@ -28,6 +28,7 @@ export const AuthForm = ({
   githubAuthUrl,
   isGoogleOAuthEnabled,
   isGithubOAuthEnabled,
+  isSignupDisabled,
 }: {
   type: string;
   invitationToken?: string | null;
@@ -36,6 +37,7 @@ export const AuthForm = ({
   githubAuthUrl?: string;
   isGoogleOAuthEnabled?: boolean;
   isGithubOAuthEnabled?: boolean;
+  isSignupDisabled?: boolean;
 }) => {
   const formSchema = authFormSchema(type);
   const router = useRouter();
@@ -376,10 +378,14 @@ export const AuthForm = ({
             </>
           )}
           {type === "sign-in" ? (
-            <p className="text-center text-small">
-              Need to create an account?&nbsp;
-              <Link href="/sign-up">Sign Up</Link>
-            </p>
+            <>
+              {!isSignupDisabled && (
+                <p className="text-center text-small">
+                  Need to create an account?&nbsp;
+                  <Link href="/sign-up">Sign Up</Link>
+                </p>
+              )}
+            </>
           ) : (
             <p className="text-center text-small">
               Already have an account?&nbsp;
